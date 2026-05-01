@@ -45,8 +45,8 @@
         },
         "conversationType": {
           "type": "string",
-          "enum": ["direct", "group"],
-          "description": "Direct or group conversation."
+          "enum": ["direct", "group", "visitor"],
+          "description": "Direct, group, or visitor (anonymous public-profile chat) conversation."
         },
         "senderId": {
           "type": "string",

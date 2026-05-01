@@ -45,7 +45,7 @@ export type AmikoInboundEvent = {
   type: AmikoEventType;
   accountId: string;
   conversationId: string;
-  conversationType: "direct" | "group";
+  conversationType: "direct" | "group" | "visitor";
   conversationTitle?: string;
   senderId: string;
   senderName: string;

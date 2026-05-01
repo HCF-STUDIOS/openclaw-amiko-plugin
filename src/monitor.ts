@@ -34,7 +34,10 @@ export type MonitorHandle = {
  * This ensures every Amiko conversation (DM or group) gets its own isolated
  * session regardless of how the user configures dmScope.
  */
-function buildAmikoSessionKey(agentId: string, _kind: "direct" | "group" | "post", id: string): string {
+function buildAmikoSessionKey(agentId: string, kind: "direct" | "group" | "post" | "visitor", id: string): string {
+  if (kind === "visitor") {
+    return `agent:${agentId}:amiko:visitor:${id}`.toLowerCase();
+  }
   // Always use "group" kind so openclaw's group tool policy applies to all
   // amiko sessions (direct, group, post). The actual conversation type is
   // conveyed via ConversationLabel / ChatType metadata instead.
@@ -77,12 +80,25 @@ function buildAmikoReplyContext(
   opts?: { agentRoundCount?: number },
 ): string {
   const replyMode = event.replyMode ?? "as_owner";
+  const isVisitor = event.conversationType === "visitor";
   const lines = [
     "Amiko reply context:",
     `- Reply mode: ${replyMode}`,
   ];
 
-  if (replyMode === "as_owner") {
+  if (isVisitor) {
+    lines.push(
+      `- This is a visitor chat: an unauthenticated visitor is messaging${event.ownerName ? ` ${event.ownerName}` : " the owner"} from a public profile page.`,
+      "- You are replying as the agent persona representing the owner.",
+      "- Be friendly and helpful. Answer questions about the owner using the visitor-facing prompt below as your authoritative context.",
+      "- If a question is outside that context, politely say you don't have that information rather than inventing details.",
+    );
+    if (event.sharedAccountPrompt?.trim()) {
+      lines.push(
+        `- Visitor-facing prompt:\n${event.sharedAccountPrompt.trim()}`,
+      );
+    }
+  } else if (replyMode === "as_owner") {
     lines.push(
       `- You are replying on behalf of the owner${event.ownerName ? `, ${event.ownerName}` : ""}.`,
       `- Write as the owner in first person. Do not describe yourself as an AI, assistant, or proxy unless the owner explicitly wants that.`,
@@ -426,10 +442,11 @@ async function processChatEvent(
   const replyMode = event.replyMode ?? "as_owner";
 
   console.log(
-    `[amiko:${account.accountId}] processChatEvent: convId=${event.conversationId} sender=${event.senderName} replyExpected=${replyExpected} replyMode=${replyMode}`,
+    `[amiko:${account.accountId}] processChatEvent: convId=${event.conversationId} convType=${event.conversationType} sender=${event.senderName} replyExpected=${replyExpected} replyMode=${replyMode}`,
   );
 
   const isGroup = event.conversationType === "group";
+  const isVisitor = event.conversationType === "visitor";
   const conversationId = event.conversationId?.trim();
 
   if (!conversationId) {
@@ -438,8 +455,9 @@ async function processChatEvent(
   }
 
   // Use "group" kind for all chat peers so openclaw's group tool policy applies
-  // to both DM and group conversations (restricting exec, readFile, etc.).
-  // The session key still distinguishes direct vs group via buildAmikoSessionKey.
+  // to DM, group, and visitor conversations (restricting exec, readFile, etc.).
+  // The session key still distinguishes the conversation kind via
+  // buildAmikoSessionKey.
   const peer = { kind: "group" as const, id: conversationId };
 
   const route = core.channel.routing.resolveAgentRoute({
@@ -449,7 +467,11 @@ async function processChatEvent(
     peer,
   });
 
-  const chatKind = isGroup ? "group" as const : "direct" as const;
+  const chatKind = isVisitor
+    ? ("visitor" as const)
+    : isGroup
+      ? ("group" as const)
+      : ("direct" as const);
   const sessionKey = buildAmikoSessionKey(route.agentId, chatKind, conversationId);
 
   const storePath = core.channel.session.resolveStorePath(
