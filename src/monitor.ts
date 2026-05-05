@@ -34,6 +34,13 @@ export type MonitorHandle = {
  * This ensures every Amiko conversation (DM or group) gets its own isolated
  * session regardless of how the user configures dmScope.
  */
+function hasVisitorAgent(config: unknown): boolean {
+  const cfg = config as { agents?: { list?: Array<{ id?: unknown }> } } | undefined;
+  const list = cfg?.agents?.list;
+  if (!Array.isArray(list)) return false;
+  return list.some((entry) => entry?.id === "visitor");
+}
+
 function buildAmikoSessionKey(agentId: string, kind: "direct" | "group" | "post" | "visitor", id: string): string {
   if (kind === "visitor") {
     return `agent:${agentId}:amiko:visitor:${id}`.toLowerCase();
@@ -460,12 +467,25 @@ async function processChatEvent(
   // buildAmikoSessionKey.
   const peer = { kind: "group" as const, id: conversationId };
 
-  const route = core.channel.routing.resolveAgentRoute({
-    cfg: config,
-    channel: "amiko",
-    accountId: account.accountId,
-    peer,
-  });
+  // Visitor conversations route to a dedicated "visitor" agent when it exists in
+  // the gateway config. This isolates visitor sessions from the owner's
+  // workspace (memory, tokens, skills) so an unauthenticated visitor cannot
+  // read or exfiltrate private context via prompt injection. If no visitor
+  // agent is configured, fall back to standard routing — the operator must
+  // provision one before exposing visitor chat. See
+  // amiko-platform/amiko-web/scripts/clawds/provision-visitor-agent.ts.
+  const route = isVisitor && hasVisitorAgent(config)
+    ? {
+        agentId: "visitor",
+        accountId: account.accountId,
+        sessionKey: `agent:visitor:amiko:visitor:${conversationId}`.toLowerCase(),
+      }
+    : core.channel.routing.resolveAgentRoute({
+        cfg: config,
+        channel: "amiko",
+        accountId: account.accountId,
+        peer,
+      });
 
   const chatKind = isVisitor
     ? ("visitor" as const)
