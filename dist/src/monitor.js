@@ -4,6 +4,13 @@ import path from "node:path";
 import { buildPostCommentPrompt, buildPostCommentRequestBody, } from "./post-events.js";
 import { sendTextAmiko } from "./send.js";
 import { createReplyPrefixOptions } from "./reply-prefix.js";
+function hasVisitorAgent(config) {
+    const cfg = config;
+    const list = cfg?.agents?.list;
+    if (!Array.isArray(list))
+        return false;
+    return list.some((entry) => entry?.id === "visitor");
+}
 /**
  * Build a per-conversation session key that does not depend on the global
  * `session.dmScope` setting.  Format mirrors the SDK convention:
@@ -13,13 +20,6 @@ import { createReplyPrefixOptions } from "./reply-prefix.js";
  * This ensures every Amiko conversation (DM or group) gets its own isolated
  * session regardless of how the user configures dmScope.
  */
-function hasVisitorAgent(config) {
-    const cfg = config;
-    const list = cfg?.agents?.list;
-    if (!Array.isArray(list))
-        return false;
-    return list.some((entry) => entry?.id === "visitor");
-}
 function buildAmikoSessionKey(agentId, kind, id) {
     if (kind === "visitor") {
         return `agent:${agentId}:amiko:visitor:${id}`.toLowerCase();
@@ -328,13 +328,7 @@ async function processChatEvent(event, options) {
     // The session key still distinguishes the conversation kind via
     // buildAmikoSessionKey.
     const peer = { kind: "group", id: conversationId };
-    // Visitor conversations route to a dedicated "visitor" agent when it exists in
-    // the gateway config. This isolates visitor sessions from the owner's
-    // workspace (memory, tokens, skills) so an unauthenticated visitor cannot
-    // read or exfiltrate private context via prompt injection. If no visitor
-    // agent is configured, fall back to standard routing — the operator must
-    // provision one before exposing visitor chat. See
-    // amiko-platform/amiko-web/scripts/clawds/provision-visitor-agent.ts.
+    // Route visitor conversations to the dedicated "visitor" agent; see provision-visitor-agent.ts.
     const route = isVisitor && hasVisitorAgent(config)
         ? {
             agentId: "visitor",
