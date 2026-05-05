@@ -333,7 +333,7 @@ async function processChatEvent(event, options) {
         ? {
             agentId: "visitor",
             accountId: account.accountId,
-            sessionKey: `agent:visitor:amiko:visitor:${conversationId}`.toLowerCase(),
+            sessionKey: buildAmikoSessionKey("visitor", "visitor", conversationId),
         }
         : core.channel.routing.resolveAgentRoute({
             cfg: config,
