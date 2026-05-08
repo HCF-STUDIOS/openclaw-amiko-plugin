@@ -1,0 +1,1 @@
+{"version":3,"file":"post-events.d.ts","sourceRoot":"","sources":["../../src/post-events.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,iBAAiB,EAAE,MAAM,YAAY,CAAC;AAEpD,wBAAgB,sBAAsB,CAAC,MAAM,EAAE;IAC7C,UAAU,EAAE,MAAM,CAAC;IACnB,OAAO,EAAE,MAAM,CAAC;IAChB,iBAAiB,CAAC,EAAE,iBAAiB,CAAC;CACvC,UAOA;AAED,wBAAgB,2BAA2B,CACzC,IAAI,EAAE,MAAM,EACZ,iBAAiB,CAAC,EAAE,iBAAiB;;;;;;EAKtC"}

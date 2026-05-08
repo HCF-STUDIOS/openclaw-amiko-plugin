@@ -25,6 +25,13 @@ export type MonitorHandle = {
   handler: (req: any, res: any) => Promise<void>;
 };
 
+function hasVisitorAgent(config: unknown): boolean {
+  const cfg = config as { agents?: { list?: Array<{ id?: unknown }> } } | undefined;
+  const list = cfg?.agents?.list;
+  if (!Array.isArray(list)) return false;
+  return list.some((entry) => entry?.id === "visitor");
+}
+
 /**
  * Build a per-conversation session key that does not depend on the global
  * `session.dmScope` setting.  Format mirrors the SDK convention:
@@ -460,12 +467,19 @@ async function processChatEvent(
   // buildAmikoSessionKey.
   const peer = { kind: "group" as const, id: conversationId };
 
-  const route = core.channel.routing.resolveAgentRoute({
-    cfg: config,
-    channel: "amiko",
-    accountId: account.accountId,
-    peer,
-  });
+  // Route visitor conversations to the dedicated "visitor" agent; see provision-visitor-agent.ts.
+  const route = isVisitor && hasVisitorAgent(config)
+    ? {
+        agentId: "visitor",
+        accountId: account.accountId,
+        sessionKey: buildAmikoSessionKey("visitor", "visitor", conversationId),
+      }
+    : core.channel.routing.resolveAgentRoute({
+        cfg: config,
+        channel: "amiko",
+        accountId: account.accountId,
+        peer,
+      });
 
   const chatKind = isVisitor
     ? ("visitor" as const)
