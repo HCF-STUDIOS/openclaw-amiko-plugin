@@ -38,12 +38,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HCF-S/openclaw-amiko-plugin.git"
+    "url": "git+https://github.com/HCF-STUDIOS/openclaw-amiko-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/HCF-S/openclaw-amiko-plugin/issues"
+    "url": "https://github.com/HCF-STUDIOS/openclaw-amiko-plugin/issues"
   },
-  "homepage": "https://github.com/HCF-S/openclaw-amiko-plugin#readme",
+  "homepage": "https://github.com/HCF-STUDIOS/openclaw-amiko-plugin#readme",
   "publishConfig": {
     "access": "public"
   },
