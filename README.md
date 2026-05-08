@@ -171,7 +171,7 @@ The plugin handles two event types on the same webhook endpoint:
 ### Local development setup
 
 ```bash
-git clone https://github.com/HCF-S/openclaw-amiko-plugin
+git clone https://github.com/HCF-STUDIOS/openclaw-amiko-plugin
 cd openclaw-amiko-plugin
 pnpm install
 pnpm run build
