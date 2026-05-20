@@ -10,6 +10,10 @@ import {
 } from "./post-events.js";
 import { sendTextAmiko } from "./send.js";
 import { createReplyPrefixOptions } from "./reply-prefix.js";
+import {
+  AUTO_COMMENT_MODEL,
+  withAutoCommentModelOverride,
+} from "./auto-comment-model.js";
 
 export type MonitorOptions = {
   account: ResolvedAmikoAccount;
@@ -745,8 +749,18 @@ async function processPostEvent(
     },
   });
 
+  const dispatchCfg = event.autoCommentSource
+    ? withAutoCommentModelOverride(config as Parameters<typeof withAutoCommentModelOverride>[0], route.agentId)
+    : config;
+
+  if (event.autoCommentSource) {
+    console.log(
+      `[amiko:${account.accountId}] post.published dispatch using auto-comment model ${AUTO_COMMENT_MODEL} (source=${event.autoCommentSource})`,
+    );
+  }
+
   const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-    cfg: config,
+    cfg: dispatchCfg,
     agentId: route.agentId,
     channel: "amiko",
     accountId: account.accountId,
@@ -758,7 +772,7 @@ async function processPostEvent(
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
-    cfg: config,
+    cfg: dispatchCfg,
     dispatcherOptions: {
       ...prefixOptions,
       deliver: async (payload: { text?: string }) => {
