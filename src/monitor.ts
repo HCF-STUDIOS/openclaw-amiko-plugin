@@ -714,11 +714,15 @@ export async function processPostEvent(
     return;
   }
 
+  const autoCommentSource = isAutoCommentSource(event.autoCommentSource)
+    ? event.autoCommentSource
+    : undefined;
+
   // Friend's post: agent decides whether to comment.
   const prompt = buildPostCommentPrompt({
     authorName,
     content,
-    autoCommentSource: event.autoCommentSource,
+    autoCommentSource,
   });
 
   const ctxPayload = core.channel.reply.finalizeInboundContext({
@@ -751,13 +755,13 @@ export async function processPostEvent(
   });
 
   let dispatchCfg = config;
-  if (isAutoCommentSource(event.autoCommentSource)) {
+  if (autoCommentSource) {
     dispatchCfg = withAutoCommentModelOverride(
       config as Parameters<typeof withAutoCommentModelOverride>[0],
       route.agentId,
     );
     console.log(
-      `[amiko:${account.accountId}] post.published dispatch using auto-comment model ${AUTO_COMMENT_MODEL} (source=${event.autoCommentSource})`,
+      `[amiko:${account.accountId}] post.published dispatch using auto-comment model ${AUTO_COMMENT_MODEL} (source=${autoCommentSource})`,
     );
   }
 
@@ -802,7 +806,7 @@ export async function processPostEvent(
               "Content-Type": "application/json",
             },
             body: JSON.stringify(
-              buildPostCommentRequestBody(text, event.autoCommentSource),
+              buildPostCommentRequestBody(text, autoCommentSource),
             ),
           });
 
