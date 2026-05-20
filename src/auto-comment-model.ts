@@ -1,6 +1,8 @@
 import { normalizeAgentId } from "openclaw/plugin-sdk";
 
 export const AUTO_COMMENT_MODEL = "openrouter/openai/gpt-5-nano";
+// gpt-5-nano is a reasoning model; cap thinking to minimal so the visible reply isn't starved by hidden reasoning tokens
+export const AUTO_COMMENT_THINKING = "minimal";
 
 export { isAutoCommentSource } from "./types.js";
 
@@ -38,15 +40,13 @@ export function withAutoCommentModelOverride(
       ...agents,
       defaults: {
         ...forceAutoCommentModel(defaults),
-        // gpt-5-nano is a reasoning model; cap it to minimal to prevent token exhaustion
-        thinkingDefault: "minimal",
+        thinkingDefault: AUTO_COMMENT_THINKING,
       },
       list: list.map((entry) =>
         normalizeAgentId(entry.id ?? "") === targetId
           ? {
               ...forceAutoCommentModel(entry),
-              // gpt-5-nano is a reasoning model; cap it to minimal to prevent token exhaustion
-              thinkingDefault: "minimal",
+              thinkingDefault: AUTO_COMMENT_THINKING,
             }
           : entry,
       ),

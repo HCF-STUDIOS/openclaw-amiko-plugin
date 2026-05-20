@@ -86,7 +86,6 @@ test("withAutoCommentModelOverride also forces thinkingDefault=minimal on the ma
   const out = withAutoCommentModelOverride(cfg, "main");
   assert.equal(out.agents.list[0].model, "openrouter/openai/gpt-5-nano");
   assert.equal(out.agents.list[0].thinkingDefault, "minimal");
-  // input untouched
   assert.equal(cfg.agents.list[0].thinkingDefault, "high");
 });
 

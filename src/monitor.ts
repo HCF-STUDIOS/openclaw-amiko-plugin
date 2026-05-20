@@ -750,14 +750,12 @@ export async function processPostEvent(
     },
   });
 
-  const dispatchCfg = isAutoCommentSource(event.autoCommentSource)
-    ? withAutoCommentModelOverride(
-        config as Parameters<typeof withAutoCommentModelOverride>[0],
-        route.agentId,
-      )
-    : config;
-
+  let dispatchCfg = config;
   if (isAutoCommentSource(event.autoCommentSource)) {
+    dispatchCfg = withAutoCommentModelOverride(
+      config as Parameters<typeof withAutoCommentModelOverride>[0],
+      route.agentId,
+    );
     console.log(
       `[amiko:${account.accountId}] post.published dispatch using auto-comment model ${AUTO_COMMENT_MODEL} (source=${event.autoCommentSource})`,
     );
