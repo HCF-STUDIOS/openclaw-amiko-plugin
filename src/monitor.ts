@@ -626,7 +626,7 @@ async function processChatEvent(
 
 // ── Post comment processing ─────────────────────────────────────────────────
 
-async function processPostEvent(
+export async function processPostEvent(
   event: AmikoInboundEvent,
   options: Pick<MonitorOptions, "account" | "config" | "runtime">,
 ): Promise<void> {
