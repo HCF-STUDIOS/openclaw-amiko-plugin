@@ -5,7 +5,7 @@ const { processPostEvent } = await import(
   new URL("./monitor.ts", import.meta.url).href,
 );
 
-type Captured = { cfg: unknown; ctx: unknown };
+type Captured = { cfg: unknown };
 
 function buildHarness() {
   const captured: Captured[] = [];
@@ -27,7 +27,7 @@ function buildHarness() {
           ctx: unknown;
           cfg: unknown;
         }) => {
-          captured.push({ cfg: params.cfg, ctx: params.ctx });
+          captured.push({ cfg: params.cfg });
         },
         formatAgentEnvelope: () => "envelope",
         resolveEnvelopeFormatOptions: () => ({}),

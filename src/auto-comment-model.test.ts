@@ -18,7 +18,6 @@ test("withAutoCommentModelOverride replaces agents.defaults.model (string form)"
   };
   const out = withAutoCommentModelOverride(cfg, "amiko-default");
   assert.equal(out.agents.defaults.model, "openrouter/openai/gpt-5-nano");
-  // input not mutated
   assert.equal(cfg.agents.defaults.model, "openrouter/google/gemini-3.1-flash-lite");
 });
 
@@ -39,7 +38,6 @@ test("withAutoCommentModelOverride replaces agents.defaults.model.primary (objec
     primary: "openrouter/openai/gpt-5-nano",
     fallbacks: [],
   });
-  // input not mutated
   assert.deepEqual(cfg.agents.defaults.model, {
     primary: "openrouter/google/gemini-3.1-flash-lite",
     fallbacks: ["openrouter/anthropic/claude-sonnet-4.5"],
@@ -58,7 +56,6 @@ test("withAutoCommentModelOverride also overrides the matched per-agent entry", 
   };
   const out = withAutoCommentModelOverride(cfg, "amiko-default");
   assert.equal(out.agents.list[0].model, "openrouter/openai/gpt-5-nano");
-  // untouched
   assert.equal(out.agents.list[1].model, "openrouter/anthropic/claude-sonnet-4.5");
 });
 
@@ -75,7 +72,6 @@ test("withAutoCommentModelOverride leaves list entries untouched when agentId do
   const out = withAutoCommentModelOverride(cfg, "no-match");
   assert.equal(out.agents.list[0].model, "openrouter/google/gemini-3.1-flash-lite");
   assert.equal(out.agents.list[1].model, "openrouter/anthropic/claude-sonnet-4.5");
-  // defaults still get overridden — the override applies regardless of list match
   assert.equal(out.agents.defaults.model, "openrouter/openai/gpt-5-nano");
 });
 

@@ -750,7 +750,10 @@ export async function processPostEvent(
   });
 
   const dispatchCfg = event.autoCommentSource
-    ? withAutoCommentModelOverride(config as Parameters<typeof withAutoCommentModelOverride>[0], route.agentId)
+    ? withAutoCommentModelOverride(
+        config as Parameters<typeof withAutoCommentModelOverride>[0],
+        route.agentId,
+      )
     : config;
 
   if (event.autoCommentSource) {
