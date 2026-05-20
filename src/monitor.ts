@@ -12,6 +12,7 @@ import { sendTextAmiko } from "./send.js";
 import { createReplyPrefixOptions } from "./reply-prefix.js";
 import {
   AUTO_COMMENT_MODEL,
+  isAutoCommentSource,
   withAutoCommentModelOverride,
 } from "./auto-comment-model.js";
 
@@ -749,14 +750,14 @@ export async function processPostEvent(
     },
   });
 
-  const dispatchCfg = event.autoCommentSource
+  const dispatchCfg = isAutoCommentSource(event.autoCommentSource)
     ? withAutoCommentModelOverride(
         config as Parameters<typeof withAutoCommentModelOverride>[0],
         route.agentId,
       )
     : config;
 
-  if (event.autoCommentSource) {
+  if (isAutoCommentSource(event.autoCommentSource)) {
     console.log(
       `[amiko:${account.accountId}] post.published dispatch using auto-comment model ${AUTO_COMMENT_MODEL} (source=${event.autoCommentSource})`,
     );

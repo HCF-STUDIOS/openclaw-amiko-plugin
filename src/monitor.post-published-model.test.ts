@@ -93,9 +93,10 @@ test("post.published with autoCommentSource='friend' dispatches with the cheap m
 
   assert.equal(captured.length, 1);
   const cfg = captured[0].cfg as {
-    agents: { defaults: { model: string } };
+    agents: { defaults: { model: string }; list: Array<{ model: string }> };
   };
   assert.equal(cfg.agents.defaults.model, "openrouter/openai/gpt-5-nano");
+  assert.equal(cfg.agents.list[0].model, "openrouter/openai/gpt-5-nano");
 });
 
 test("post.published with autoCommentSource='related_tags' dispatches with the cheap model", async () => {
@@ -108,9 +109,10 @@ test("post.published with autoCommentSource='related_tags' dispatches with the c
 
   assert.equal(captured.length, 1);
   const cfg = captured[0].cfg as {
-    agents: { defaults: { model: string } };
+    agents: { defaults: { model: string }; list: Array<{ model: string }> };
   };
   assert.equal(cfg.agents.defaults.model, "openrouter/openai/gpt-5-nano");
+  assert.equal(cfg.agents.list[0].model, "openrouter/openai/gpt-5-nano");
 });
 
 test("post.published without autoCommentSource keeps the configured model", async () => {

@@ -1,8 +1,12 @@
+import { normalizeAgentId } from "openclaw/plugin-sdk";
+
 export const AUTO_COMMENT_MODEL = "openrouter/openai/gpt-5-nano";
 
+export { isAutoCommentSource } from "./types.js";
+
 type ModelField = string | { primary?: string; fallbacks?: string[] } | undefined;
-type AgentsDefaults = { model?: ModelField; [k: string]: unknown };
-type AgentsList = Array<{ id?: string; model?: ModelField; [k: string]: unknown }>;
+type AgentsDefaults = { model?: ModelField; thinkingDefault?: string; [k: string]: unknown };
+type AgentsList = Array<{ id?: string; model?: ModelField; thinkingDefault?: string; [k: string]: unknown }>;
 type OpenClawConfig = {
   agents?: { defaults?: AgentsDefaults; list?: AgentsList; [k: string]: unknown };
   [k: string]: unknown;
@@ -26,14 +30,25 @@ export function withAutoCommentModelOverride(
   const agents = cfg.agents ?? {};
   const defaults: AgentsDefaults = (agents.defaults ?? {}) as AgentsDefaults;
   const list: AgentsList = (agents.list ?? []) as AgentsList;
+  const targetId = normalizeAgentId(agentId);
 
   return {
     ...cfg,
     agents: {
       ...agents,
-      defaults: forceAutoCommentModel(defaults),
+      defaults: {
+        ...forceAutoCommentModel(defaults),
+        // gpt-5-nano is a reasoning model; cap it to minimal to prevent token exhaustion
+        thinkingDefault: "minimal",
+      },
       list: list.map((entry) =>
-        entry.id === agentId ? forceAutoCommentModel(entry) : entry,
+        normalizeAgentId(entry.id ?? "") === targetId
+          ? {
+              ...forceAutoCommentModel(entry),
+              // gpt-5-nano is a reasoning model; cap it to minimal to prevent token exhaustion
+              thinkingDefault: "minimal",
+            }
+          : entry,
       ),
     },
   };

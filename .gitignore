@@ -3,3 +3,5 @@ node_modules/
 dist/
 /amiko/
 .claude/*.tgz
+package-lock.json
+yarn.lock
