@@ -10,6 +10,11 @@ import {
 } from "./post-events.js";
 import { sendTextAmiko } from "./send.js";
 import { createReplyPrefixOptions } from "./reply-prefix.js";
+import {
+  AUTO_COMMENT_MODEL,
+  isAutoCommentSource,
+  withAutoCommentModelOverride,
+} from "./auto-comment-model.js";
 
 export type MonitorOptions = {
   account: ResolvedAmikoAccount;
@@ -622,7 +627,7 @@ async function processChatEvent(
 
 // ── Post comment processing ─────────────────────────────────────────────────
 
-async function processPostEvent(
+export async function processPostEvent(
   event: AmikoInboundEvent,
   options: Pick<MonitorOptions, "account" | "config" | "runtime">,
 ): Promise<void> {
@@ -709,11 +714,15 @@ async function processPostEvent(
     return;
   }
 
+  const autoCommentSource = isAutoCommentSource(event.autoCommentSource)
+    ? event.autoCommentSource
+    : undefined;
+
   // Friend's post: agent decides whether to comment.
   const prompt = buildPostCommentPrompt({
     authorName,
     content,
-    autoCommentSource: event.autoCommentSource,
+    autoCommentSource,
   });
 
   const ctxPayload = core.channel.reply.finalizeInboundContext({
@@ -745,8 +754,19 @@ async function processPostEvent(
     },
   });
 
+  let dispatchCfg = config;
+  if (autoCommentSource) {
+    dispatchCfg = withAutoCommentModelOverride(
+      config as Parameters<typeof withAutoCommentModelOverride>[0],
+      route.agentId,
+    );
+    console.log(
+      `[amiko:${account.accountId}] post.published dispatch using auto-comment model ${AUTO_COMMENT_MODEL} (source=${autoCommentSource})`,
+    );
+  }
+
   const { onModelSelected, ...prefixOptions } = createReplyPrefixOptions({
-    cfg: config,
+    cfg: dispatchCfg,
     agentId: route.agentId,
     channel: "amiko",
     accountId: account.accountId,
@@ -758,7 +778,7 @@ async function processPostEvent(
 
   await core.channel.reply.dispatchReplyWithBufferedBlockDispatcher({
     ctx: ctxPayload,
-    cfg: config,
+    cfg: dispatchCfg,
     dispatcherOptions: {
       ...prefixOptions,
       deliver: async (payload: { text?: string }) => {
@@ -786,7 +806,7 @@ async function processPostEvent(
               "Content-Type": "application/json",
             },
             body: JSON.stringify(
-              buildPostCommentRequestBody(text, event.autoCommentSource),
+              buildPostCommentRequestBody(text, autoCommentSource),
             ),
           });
 

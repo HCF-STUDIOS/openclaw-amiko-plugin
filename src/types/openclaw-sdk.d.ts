@@ -1,6 +1,7 @@
 declare module "openclaw/plugin-sdk" {
   export const DEFAULT_ACCOUNT_ID: string;
 
+  export function normalizeAgentId(value: string): string;
   export function normalizeAccountId(id: string): string;
   export function normalizeOptionalAccountId(id: string | undefined): string | undefined;
   export function isNormalizedSenderAllowed(params: { senderId: string; allowFrom: string[] }): boolean;

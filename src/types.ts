@@ -26,7 +26,14 @@ export type ResolvedAmikoAccount = {
   config: AmikoAccountConfig;
 };
 
-export type AutoCommentSource = "friend" | "related_tags";
+export const AUTO_COMMENT_SOURCES = ["friend", "related_tags"] as const;
+export type AutoCommentSource = typeof AUTO_COMMENT_SOURCES[number];
+export function isAutoCommentSource(value: unknown): value is AutoCommentSource {
+  return (
+    typeof value === "string" &&
+    (AUTO_COMMENT_SOURCES as readonly string[]).includes(value)
+  );
+}
 
 // Platform API types
 

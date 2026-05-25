@@ -27,7 +27,7 @@
     "typecheck": "tsc --noEmit",
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "prepack": "npm run build",
-    "test": "node --test src/**/*.test.ts"
+    "test": "tsx --test src/**/*.test.ts"
   },
   "keywords": [
     "openclaw",
@@ -59,6 +59,7 @@
   "devDependencies": {
     "@types/node": "^25.4.0",
     "openclaw": "2026.3.13",
+    "tsx": "^4.22.3",
     "typescript": "^5.3.0"
   },
   "openclaw": {
