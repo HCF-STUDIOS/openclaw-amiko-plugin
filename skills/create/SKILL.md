@@ -11,7 +11,7 @@ You have five real, built-in media generation tools. Use them directly, they are
 ## The tools
 
 - **create_image**: generates an image. Args: `prompt`, plus `model`, `size`.
-- **create_video**: generates a video. Args: `prompt`, plus `model`, `resolution`, `seconds`.
+- **create_video**: generates a video. Args: `prompt`, plus `model`, `resolution`, `seconds`, `aspectRatio`, `firstFrameImage` (pass an image URL to animate or extend it into a video).
 - **create_tts**: generates spoken audio from text. Args: `prompt`, plus `model`, `voiceId`.
 - **create_sfx**: generates a sound effect. Args: `prompt`, `durationSeconds`.
 - **create_music**: generates a music track. Args: `prompt`, `lyrics`, `model`, `durationMs`, `isInstrumental`.
