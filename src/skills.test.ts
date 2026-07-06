@@ -23,7 +23,7 @@ test("create skill exists and parses with required frontmatter", () => {
   assert.equal(frontmatter.name, "create");
   assert.ok(frontmatter.description && frontmatter.description.length > 0);
   assert.ok(frontmatter.metadata && frontmatter.metadata.includes("openclaw"));
-  assert.ok(!frontmatter.metadata?.includes('"mcp"'), "create skill is built-in tools, not an MCP server");
+  assert.ok(!frontmatter.metadata?.includes('"mcp"'), "the per-agent MCP server id is dynamic (includes agentId), so it must not be pinned in skill metadata");
   assert.match(body, /NEVER invent/);
 });
 
