@@ -17,12 +17,12 @@ If you do not have a tool for what the user asks, say so plainly. **NEVER invent
 ## The tools
 
 - **create_image**: generates an image. Args: `prompt`, plus optional `model`, `size`.
-- **create_video**: generates a video. Args: `prompt` and/or `firstFrameImage` (an image URL to animate into a video; needs at least one of the two), plus optional `model`, `resolution`, `seconds`, `aspectRatio`.
+- **create_video**: generates a video. Args: optional motion `prompt`, optional `firstFrameImage` (image URL), plus optional `model`, `resolution`, `seconds`, `aspectRatio`. **Default model is I2V** (`MiniMax-Hailuo-2.3-Fast`): you **must** pass `firstFrameImage` (and may add a motion `prompt`). For **prompt-only** (T2V) video, pass a T2V-capable `model` such as `MiniMax-Hailuo-02` or `MiniMax-Hailuo-2.3` (do **not** use Fast alone without a first frame; the server rejects it).
 - **create_tts**: generates spoken audio from text. Args: `prompt`, plus optional `model`, `voiceId`.
 - **create_sfx**: generates a sound effect. Args: `prompt`, plus optional `durationSeconds`.
 - **create_music**: generates a music track. Args: `prompt` and/or `lyrics`, plus optional `model`, `durationMs`, `isInstrumental`.
 
-Defaults for the optional args are applied server-side, so most calls only need `prompt` (and `firstFrameImage` for video, when animating an existing image).
+Defaults for optional args are applied server-side. Image, TTS, SFX, and music usually need only `prompt`. Video is different: under the default I2V model, pass `firstFrameImage`; for prompt-only video, also pass a T2V-capable `model`.
 
 ## How generation works
 

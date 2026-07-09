@@ -25,6 +25,18 @@ test("create skill exists and parses with required frontmatter", () => {
   assert.ok(frontmatter.metadata && frontmatter.metadata.includes("openclaw"));
   assert.ok(!frontmatter.metadata?.includes('"mcp"'), "the per-agent MCP server id is dynamic (includes agentId), so it must not be pinned in skill metadata");
   assert.match(body, /NEVER invent/);
+  for (const tool of [
+    "create_image",
+    "create_video",
+    "create_tts",
+    "create_sfx",
+    "create_music",
+  ] as const) {
+    assert.match(body, new RegExp(tool));
+  }
+  // Default video model is I2V; skill must not tell agents prompt-only is enough.
+  assert.match(body, /firstFrameImage/);
+  assert.match(body, /MiniMax-Hailuo-02|MiniMax-Hailuo-2\.3(?!-Fast)/);
 });
 
 test("composio skill still parses with required frontmatter (no regression)", () => {
