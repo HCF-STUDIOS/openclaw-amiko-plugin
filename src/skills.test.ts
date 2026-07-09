@@ -36,7 +36,7 @@ test("create skill exists and parses with required frontmatter", () => {
   }
   // Default video model is I2V; skill must not tell agents prompt-only is enough.
   assert.match(body, /firstFrameImage/);
-  assert.match(body, /MiniMax-Hailuo-02|MiniMax-Hailuo-2\.3(?!-Fast)/);
+  assert.match(body, /MiniMax-Hailuo-02/);
 });
 
 test("composio skill still parses with required frontmatter (no regression)", () => {
